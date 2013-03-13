@@ -1,2 +1,2 @@
-Download: https://github.com/EClaesson/G73SW-MediaKeys/blob/master/Dist/Installer.exe?raw=true
-You must run the installer as Administrator.
+Download: https://github.com/EClaesson/G73SW-MediaKeys/blob/master/Dist/G73SW-MediaKeys.zip?raw=true
+Extract archive, and run Installer.exe as Administrator.
