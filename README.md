@@ -1,4 +1,4 @@
-Fork of EClaesson's MediaKeys utility for ASUS laptops.
+New features:
 
 -fixed bug in media keys processing (sendinput with uninitialized key code)
 
