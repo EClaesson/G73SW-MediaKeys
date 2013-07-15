@@ -1,4 +1,7 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <windows.h>
+#include <tchar.h>
 
 #define WM_APPCOMMAND                     0x0319
 #define APPCOMMAND_MEDIA_NEXTTRACK        11
@@ -11,6 +14,7 @@
 #define ATKMEDIA_STOP                     0x0003
 #define ATKMEDIA_PREV                     0x0005
 #define ATKMEDIA_NEXT                     0x0004
+#define ATKMEDIA_CALC                     0x002B
 
 HINSTANCE instance;
 TCHAR title[] = "ATKMEDIA";
@@ -19,6 +23,9 @@ TCHAR windowClass[] = "ATKMEDIA";
 WORD registerClass(HINSTANCE currentInstance);
 BOOL initInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+TCHAR calc_name[] = "\\system32\\calc.exe";
+TCHAR full_calc_name[MAX_PATH + sizeof(calc_name)];
+
 
 int APIENTRY WinMain(HINSTANCE currentInstance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
 {
@@ -30,6 +37,9 @@ int APIENTRY WinMain(HINSTANCE currentInstance, HINSTANCE prevInstance, LPTSTR c
 	{
 		return FALSE;
 	}
+
+	UINT path_len = GetWindowsDirectory(full_calc_name, MAX_PATH);
+	_tcscpy(full_calc_name+path_len,calc_name);
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -77,6 +87,21 @@ BOOL initInstance(HINSTANCE currentInstance, int cmdShow)
    return TRUE;
 }
 
+void popup_calculator()
+{
+	   HWND hdlCalc = NULL;
+	   hdlCalc = FindWindow(TEXT("CalcFrame"), TEXT("Calculator"));
+	   if(hdlCalc)
+	   {
+			ShowWindow(hdlCalc,SW_RESTORE);
+	   }
+	   else
+	   {
+			ShellExecute(NULL, TEXT("open"), full_calc_name, TEXT(""),NULL,SW_SHOWNORMAL); 	   
+	   }
+}
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -84,6 +109,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	tagINPUT input;
 	input.type = INPUT_KEYBOARD;
 	tagINPUT inputArr[1];
+
+	bool send_command = false;
 
 	switch (message)
 	{
@@ -102,20 +129,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 			case ATKMEDIA_PLAY:
 				input.ki.wVk = VK_MEDIA_PLAY_PAUSE;
+				send_command = true;
 				break;
 			case ATKMEDIA_STOP:
 				input.ki.wVk = VK_MEDIA_STOP;
+				send_command = true;
 				break;
 			case ATKMEDIA_NEXT:
 				input.ki.wVk = VK_MEDIA_NEXT_TRACK;
+				send_command = true;
 				break;
 			case ATKMEDIA_PREV:
 				input.ki.wVk = VK_MEDIA_PREV_TRACK;
+				send_command = true;
 				break;
-			}
+			case ATKMEDIA_CALC:
+				popup_calculator();
+				break;
 
-			inputArr[0] = input;
-			SendInput(1, inputArr, sizeof(inputArr));
+
+			}
+			
+			if(send_command){
+				inputArr[0] = input;
+				SendInput(1, inputArr, sizeof(inputArr));
+			}
 
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
