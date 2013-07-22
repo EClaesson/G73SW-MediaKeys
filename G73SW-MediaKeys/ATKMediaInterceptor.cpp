@@ -106,9 +106,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
 
-	tagINPUT input;
+	INPUT input;
 	input.type = INPUT_KEYBOARD;
-	tagINPUT inputArr[1];
+	input.ki.wScan = 0;
+	input.ki.dwFlags = 0;
+	input.ki.time = 0;
+	input.ki.dwExtraInfo = 0;
 
 	bool send_command = false;
 
@@ -146,15 +149,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case ATKMEDIA_CALC:
 				popup_calculator();
 				break;
-
-
 			}
 			
 			if(send_command){
-				inputArr[0] = input;
-				SendInput(1, inputArr, sizeof(inputArr));
+				SendInput(1, &input, sizeof(INPUT));
 			}
-
+			//intentional fall-through!!!!
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
